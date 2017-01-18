@@ -1,6 +1,7 @@
 DELIMITER $$
 DROP FUNCTION IF EXISTS `get_food_id`$$
-CREATE FUNCTION `get_food_id`(valid_food_name TEXT) RETURNS TINYINT(4)
+CREATE FUNCTION `get_food_id`(valid_food_name TEXT)
+RETURNS BOOLEAN
 BEGIN
 DECLARE result TINYINT;
 SELECT ID INTO result FROM SEED_FOOD WHERE NAME=valid_food_name;

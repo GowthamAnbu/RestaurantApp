@@ -1,6 +1,7 @@
 DELIMITER $$
 DROP FUNCTION IF EXISTS `check_number_of_items`$$
-CREATE FUNCTION `check_number_of_items`(litem_name TEXT,lquantity TEXT) RETURNS TINYINT(1)
+CREATE FUNCTION `check_number_of_items`(litem_name TEXT,lquantity TEXT) 
+RETURNS BOOLEAN
 BEGIN
 DECLARE result BOOLEAN DEFAULT FALSE;
 DECLARE item_length INT DEFAULT 0;
