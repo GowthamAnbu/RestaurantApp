@@ -15,5 +15,4 @@ SET result=TRUE;
 END IF;
 RETURN result;
 END$$
-
 DELIMITER ;
