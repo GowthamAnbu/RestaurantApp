@@ -1,6 +1,7 @@
 DELIMITER $$
 DROP FUNCTION IF EXISTS `isquantity_valid`$$\
-CREATE FUNCTION `isquantity_valid`(quantity MEDIUMTEXT) RETURNS TINYINT(1)
+CREATE FUNCTION `isquantity_valid`(quantity MEDIUMTEXT)
+RETURNS BOOLEAN
 BEGIN
 DECLARE result BOOLEAN DEFAULT TRUE;
 /* checking whether the quantity is negative or character */
