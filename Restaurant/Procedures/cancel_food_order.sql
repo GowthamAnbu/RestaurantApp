@@ -13,7 +13,7 @@ BEGIN
 DECLARE lfood_id TINYINT;
 IF (isseat_number(lseat_number)) THEN
 	IF (EXISTS(SELECT SEAT_NUMBER FROM SEED_SEAT WHERE SEAT_NUMBER=lseat_number AND ACTIVE=1)) THEN
-	IF (EXISTS(SELECT ID FROM ORDERS WHERE SEAT_NUMBER=lseat_number AND STATUS='Ordered')) THEN
+	IF (EXISTS(SELECT ID FROM ORDERS WHERE SEAT_NUMBER=lseat_number AND BILL_STATUS=0)) THEN
 	SELECT ID INTO lfood_id FROM SEED_FOOD WHERE NAME=lfood_name;
 	IF (isfood_ordered(lseat_number,lfood_id)) THEN
 			UPDATE ORDER_FOOD_MAINTENANCE
@@ -24,20 +24,20 @@ IF (isseat_number(lseat_number)) THEN
 			AND ORDER_FOOD_MAINTENANCE.FOOD_ID=lfood_id 
 			AND ORDER_FOOD_MAINTENANCE.STATUS='Ordered';
 	ELSE
-	SET result="INVALID FOOD NAME";
+	SELECT "INVALID FOOD NAME";
 	END IF;
-		ELSEIF (EXISTS(SELECT ID FROM ORDERS WHERE SEAT_NUMBER=lseat_number AND STATUS='Paid')) THEN
-		SET result="Bill has been paid";
-		ELSEIF (EXISTS(SELECT ID FROM ORDERS WHERE SEAT_NUMBER=lseat_number AND STATUS='Cancelled')) THEN
-		SET result="Order has already been cancelled"; 
+		ELSEIF (EXISTS(SELECT ID FROM ORDERS WHERE SEAT_NUMBER=lseat_number AND BILL_STATUS=1)) THEN
+		SET result= "Bill has been paid";
+		ELSEIF (EXISTS(SELECT ID FROM ORDERS WHERE SEAT_NUMBER=lseat_number AND BILL_STATUS=2)) THEN
+		SET result= "Order has already been cancelled"; 
 		ELSE
-		SET result="No items purchased for this seat number";
+		SET result= "No items purchased for this seat number";
 		END IF;
 ELSE
-	SET result="NO ITEMS ORDERED";
+	SET result= "NO ITEMS ORDERED";
 	END IF;
 ELSE
-SET result="INVALID SEAT NUMBER";
+SET result= "INVALID SEAT NUMBER";
 END IF;
 END$$
 DELIMITER ;
