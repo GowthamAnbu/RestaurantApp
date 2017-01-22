@@ -10,8 +10,8 @@ DECLARE quantity_length INT DEFAULT 0;
 SELECT LENGTH(litem_name)-LENGTH(REPLACE(litem_name,',',''))+1 INTO item_length;
 SELECT LENGTH(lquantity)-LENGTH(REPLACE(lquantity,',',''))+1 INTO quantity_length;
 /* checking the number of items and quantity with the maximum order limit */
-IF (item_length>(SELECT ORDER_MAX FROM SEED_ORDER_LIMIT WHERE ID=1)
-OR quantity_length>(SELECT ORDER_MAX FROM SEED_ORDER_LIMIT WHERE ID=1))THEN
+IF (item_length>(SELECT MAX_LIMIT FROM SEED_ORDER_LIMIT WHERE ID=1)
+OR quantity_length>(SELECT MAX_LIMIT FROM SEED_ORDER_LIMIT WHERE ID=1))THEN
 SET result=TRUE;
 END IF;
 RETURN result;
