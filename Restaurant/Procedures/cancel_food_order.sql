@@ -1,43 +1,42 @@
 DELIMITER $$
 DROP PROCEDURE IF EXISTS `cancel_food_order`$$
-CREATE PROCEDURE `cancel_food_order`(IN lseat_number TINYINT,IN lfood_name VARCHAR(30),OUT result text)
+CREATE PROCEDURE `cancel_food_order`(IN lid INT,IN lfood_name VARCHAR(30),OUT result TEXT)
 BEGIN
-/* 1 checking whether the seat number is valid
- * 1.1 checking whether the seat number is active
+/* 1 checking whether the order number is valid
  * 1.1.1 checking whether the seat number ordered food
- * 1.1.1.1 checking whether the seat number ordered valid food
- * 1.1.1.2 invalid food id
- * 1.1.2 checking whether the order has already been paid 
- * 1.1.3 checking whether the order has been cancelled 
- * 1.2 no items ordered*/
+ * 1.1.1.1 checking whether the food name is valid
+ * 1.1.1.2 checking whether the seat number ordered given food*/
 DECLARE lfood_id TINYINT;
-IF (isseat_number(lseat_number)) THEN
-	IF (EXISTS(SELECT SEAT_NUMBER FROM SEED_SEAT WHERE SEAT_NUMBER=lseat_number AND ACTIVE=1)) THEN
-	IF (EXISTS(SELECT ID FROM ORDERS WHERE SEAT_NUMBER=lseat_number AND BILL_STATUS=0)) THEN
-	SELECT ID INTO lfood_id FROM SEED_FOOD WHERE NAME=lfood_name;
-	IF (isfood_ordered(lseat_number,lfood_id)) THEN
-			UPDATE ORDER_FOOD_MAINTENANCE
-			INNER JOIN ORDERS
-			ON ORDER_FOOD_MAINTENANCE.ORDER_ID=ORDERS.ID
-			SET ORDER_FOOD_MAINTENANCE.STATUS='Cancelled'
-			WHERE ORDERS.SEAT_NUMBER=lseat_number 
-			AND ORDER_FOOD_MAINTENANCE.FOOD_ID=lfood_id 
-			AND ORDER_FOOD_MAINTENANCE.STATUS='Ordered';
-	ELSE
-	SELECT "INVALID FOOD NAME";
-	END IF;
-		ELSEIF (EXISTS(SELECT ID FROM ORDERS WHERE SEAT_NUMBER=lseat_number AND BILL_STATUS=1)) THEN
-		SET result= "Bill has been paid";
-		ELSEIF (EXISTS(SELECT ID FROM ORDERS WHERE SEAT_NUMBER=lseat_number AND BILL_STATUS=2)) THEN
-		SET result= "Order has already been cancelled"; 
+IF (EXISTS(SELECT ID FROM ORDERS WHERE ID=lid)) THEN
+	IF (EXISTS(SELECT ID FROM ORDERS WHERE ID=lid AND STATUS='Ordered')) THEN
+		IF (EXISTS(SELECT ID FROM SEED_FOOD WHERE NAME=lfood_name)) THEN
+		SET lfood_id=get_food_id(lfood_name);
+			IF (isfood_ordered(lid,lfood_id)) THEN
+					START TRANSACTION;
+					SET autocommit=0;
+					UPDATE ORDER_FOOD_MAINTENANCE
+					INNER JOIN ORDERS
+					ON ORDER_FOOD_MAINTENANCE.ORDER_ID=ORDERS.ID
+					SET ORDER_FOOD_MAINTENANCE.STATUS='Cancelled'
+					WHERE ORDERS.ID=lid 
+					AND ORDER_FOOD_MAINTENANCE.FOOD_ID=lfood_id 
+					AND ORDER_FOOD_MAINTENANCE.STATUS='Ordered';
+					IF (NOT EXISTS(SELECT ID FROM ORDER_FOOD_MAINTENANCE WHERE ORDER_ID=lid AND STATUS='Ordered'))THEN
+					UPDATE ORDERS SET STATUS='Cancelled' WHERE ID=lid;
+					END IF;
+					SET result="FOOD CANCELLED SUCCESSFULLY";
+					COMMIT;
+			ELSE
+			SET result="SUCH ITEM WAS NOT ORDERED";
+			END IF;
 		ELSE
-		SET result= "No items purchased for this seat number";
+		SET result="INVALID FOOD NAME";
 		END IF;
-ELSE
-	SET result= "NO ITEMS ORDERED";
+	ELSE 
+	SET result="ORDER IS CANCELLED ALREADY";
 	END IF;
 ELSE
-SET result= "INVALID SEAT NUMBER";
+SET result="INVALID ORDER ID";
 END IF;
 END$$
 DELIMITER ;

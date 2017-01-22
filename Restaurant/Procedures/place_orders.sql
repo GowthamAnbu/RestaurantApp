@@ -1,6 +1,7 @@
 DELIMITER $$
+USE `restaurant`$$
 DROP PROCEDURE IF EXISTS `place_orders`$$
-CREATE PROCEDURE `place_orders`(lseat_number TINYINT,litem_name TEXT,lquantity TEXT,OUT result TEXT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `place_orders`(lseat_number TINYINT,litem_name TEXT,lquantity TEXT,OUT result TEXT)
 BEGIN
 	IF (isseat_number(lseat_number)) THEN/* check valid seat number */
 	IF (!isseat_number_active(lseat_number)) THEN/* check seat number active */
@@ -11,10 +12,12 @@ BEGIN
 	IF (isfoods_available(litem_name)) THEN/* check stock availability */
 		START TRANSACTION;
 		SET autocommit=0;
+		UPDATE SEED_SEAT SET ACTIVE=1 WHERE SEAT_NUMBER=lseat_number;
 		CALL insert_orders(lseat_number,@lorder_id);
 		CALL insert_food_orders(@lorder_id,litem_name,lquantity);
 		CALL update_price(@lorder_id);
-		UPDATE SEED_SEAT SET ACTIVE=1 WHERE SEAT_NUMBER=lseat_number;
+		UPDATE SEED_SEAT SET ACTIVE=0 WHERE SEAT_NUMBER=lseat_number;
+		SET result="Order placed successfully";
 		COMMIT;
 	ELSE
 	SET result="sorry such item is out of stock";
@@ -39,4 +42,3 @@ BEGIN
 	END IF;
 END$$
 DELIMITER ;
-
