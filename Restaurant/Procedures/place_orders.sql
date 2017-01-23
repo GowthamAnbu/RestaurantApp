@@ -1,7 +1,7 @@
 DELIMITER $$
 USE `restaurant`$$
 DROP PROCEDURE IF EXISTS `place_orders`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `place_orders`(lseat_number TINYINT,litem_name TEXT,lquantity TEXT,OUT result TEXT)
+CREATE PROCEDURE `place_orders`(lseat_number TINYINT,litem_name TEXT,lquantity TEXT,OUT result TEXT)
 BEGIN
 	IF (isseat_number(lseat_number)) THEN/* check valid seat number */
 	IF (!isseat_number_active(lseat_number)) THEN/* check seat number active */
