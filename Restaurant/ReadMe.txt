@@ -11,4 +11,4 @@ PROCEDURES:
 	
 3.cancel_food_order(int,varchar(30),outparameter)
 	/* parameters are -> orderid,foodname,outparameter */
-	Example cancel_food_order(12,'Tea',@out) 
+	Example cancel_food_order(12,'Tea',@out)
